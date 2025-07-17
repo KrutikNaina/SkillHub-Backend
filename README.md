@@ -41,10 +41,6 @@ node server.js
 
 ---
 
-## 👨‍💻 Author
-Built with ❤️ by [Krutik Naina](https://krutiknaina.com/)
-
-
 ## 🔑 Environment Variables
 
 Create a `.env` file in the root with the following:
@@ -54,4 +50,10 @@ PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret ```
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
+
+---
+
+## 👨‍💻 Author
+Built with ❤️ by [Krutik Naina](https://krutiknaina.com/)
