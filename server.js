@@ -1,26 +1,35 @@
-// server.js
-import express from 'express'
-import dotenv from 'dotenv'
-import cors from 'cors'
+import express from 'express';
+import mongoose from 'mongoose';
+import session from 'express-session';
+import passport from 'passport';
+import dotenv from 'dotenv';
+import authRoutes from './routes/authRoutes.js';
+import './config/passportConfig.js';
 
-import connectDB from './config/db.js'
-import authRoutes from './routes/authRoutes.js'
+dotenv.config();
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-dotenv.config()
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch((err) => console.log('❌ DB Error', err));
 
-const app = express()
-app.use(cors())
-app.use(express.json())
+app.use(express.json());
+app.use(session({
+  secret: process.env.JWT_SECRET || 'keyboardcat',
+  resave: false,
+  saveUninitialized: false,
+}));
 
-app.get('/', (req, res) => {
-    res.send('🎉 SkillHub Backend is Running!');
-  });  
+app.use(passport.initialize());
+app.use(passport.session());
 
-connectDB()
+// Serve frontend files
+app.use(express.static('public'));
 
-app.use('/api/auth', authRoutes)
+// Auth routes
+app.use('/auth', authRoutes);
 
-const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`)
-})
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
