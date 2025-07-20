@@ -1,4 +1,3 @@
-// routes/authRoutes.js
 import express from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
@@ -12,7 +11,7 @@ router.get('/google',
   })
 );
 
-// Step 2: Google Auth Callback
+// ✅ Step 2: Google Auth Callback (updated for popup flow)
 router.get(
   '/google/callback',
   passport.authenticate('google', { failureRedirect: '/auth/failure' }),
@@ -28,8 +27,24 @@ router.get(
       { expiresIn: '1h' }
     );
 
-    // 🔁 Redirect to frontend profile page with token
-    res.redirect(`http://localhost:5173/profile?token=${token}`);
+    // Send token to opener window and close popup
+    res.send(`
+      <html>
+        <body>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({
+                type: 'oauth-success',
+                token: '${token}'
+              }, '*');
+              window.close();
+            } else {
+              document.body.innerText = "Login success, but can't communicate with main window.";
+            }
+          </script>
+        </body>
+      </html>
+    `);
   }
 );
 
