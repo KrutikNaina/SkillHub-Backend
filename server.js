@@ -5,6 +5,7 @@ import passport from 'passport';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import './config/passportConfig.js';
+import profileRoutes  from './routes/profile.routes.js'
 
 dotenv.config();
 const app = express();
@@ -29,6 +30,9 @@ app.use(express.static('public'));
 
 // Auth routes
 app.use('/auth', authRoutes);
+
+// Use Profile routes
+app.use('/api/profile', profileRoutes)
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
