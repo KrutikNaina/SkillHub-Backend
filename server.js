@@ -9,6 +9,10 @@ import authRoutes from './routes/authRoutes.js';
 import profileRoutes from './routes/profile.routes.js';
 import './config/passportConfig.js';
 import skillRoutes from './routes/skill.routes.js'
+import starRoutes from './routes/star.routes.js';
+import followerRoutes from './routes/follower.routes.js';
+import progressLogRoutes from './routes/progressLog.routes.js'
+import milestoneRoutes from './routes/milestone.routes.js';
 
 
 dotenv.config();
@@ -50,6 +54,19 @@ app.get('/', (req, res) => {
 
 // skills api
 app.use('/api/skills', skillRoutes)
+
+// stars api
+app.use('/api/stars', starRoutes);
+
+// follower api
+app.use('/api/followers', followerRoutes);
+
+// progresslogs api
+app.use('/api/progresslogs', progressLogRoutes)
+
+// milestones api
+app.use('/api/milestones', milestoneRoutes);
+
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
