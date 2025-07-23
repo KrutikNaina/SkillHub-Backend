@@ -1,13 +1,8 @@
-import express from 'express'
-import Profile from '../models/Profile.model.js'
+import express from 'express';
+import { createProfile } from '../controllers/profile.controller.js';
 
-const router = express.Router()
+const router = express.Router();
 
-// This is your route:
-router.get('/:userId', async (req, res) => {
-  const profile = await Profile.findOne({ userId: req.params.userId })
-  if (!profile) return res.status(404).json({ message: 'Profile not found' })
-  res.json(profile)
-})
+router.post('/', createProfile); // POST /api/profiles
 
-export default router
+export default router;

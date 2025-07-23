@@ -45,7 +45,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Routes
 app.use('/auth', authRoutes);
-app.use('/api/profile', profileRoutes);
+app.use('/api/profiles', profileRoutes);
 
 // Default response
 app.get('/', (req, res) => {
