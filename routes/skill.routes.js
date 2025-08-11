@@ -1,10 +1,10 @@
 import express from "express";
-import { createSkill } from "../controllers/skill.controller.js";
+import { createSkill, getSkills } from "../controllers/skill.controller.js";
 import { authenticate } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// 🔐 Protect this route with JWT token
-router.post("/add", authenticate, createSkill);
+router.post("/add", authenticate, createSkill); // existing add
+router.get("/", authenticate, getSkills);       // new get
 
 export default router;

@@ -3,7 +3,12 @@ import Follower from '../models/Follower.model.js';
 // Follow a user
 export const followUser = async (req, res) => {
   try {
-    const { userId, followerId } = req.body;
+    const { userId } = req.body; // person being followed
+    const followerId = req.user.id; // logged-in user
+
+    if (userId === followerId) {
+      return res.status(400).json({ message: "You can't follow yourself" });
+    }
 
     // Prevent duplicate follows
     const alreadyFollowing = await Follower.findOne({ userId, followerId });
@@ -21,7 +26,8 @@ export const followUser = async (req, res) => {
 // Unfollow a user
 export const unfollowUser = async (req, res) => {
   try {
-    const { userId, followerId } = req.body;
+    const { userId } = req.body; // person being unfollowed
+    const followerId = req.user.id; // logged-in user
 
     const unfollow = await Follower.findOneAndDelete({ userId, followerId });
     if (!unfollow) {
@@ -39,7 +45,8 @@ export const getFollowers = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const followers = await Follower.find({ userId }).populate('followerId', 'name email');
+    const followers = await Follower.find({ userId })
+      .populate('followerId', 'name email');
     res.status(200).json(followers);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -51,7 +58,8 @@ export const getFollowing = async (req, res) => {
   try {
     const { followerId } = req.params;
 
-    const following = await Follower.find({ followerId }).populate('userId', 'name email');
+    const following = await Follower.find({ followerId })
+      .populate('userId', 'name email');
     res.status(200).json(following);
   } catch (error) {
     res.status(500).json({ error: error.message });
