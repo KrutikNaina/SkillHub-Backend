@@ -1,10 +1,10 @@
-import express from 'express';
-import { createSkill, getAllSkills, updateSkill } from '../controllers/skill.controller.js';
+import express from "express";
+import { createSkill } from "../controllers/skill.controller.js";
+import { authenticate } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post('/create', createSkill);
-router.get('/', getAllSkills);
-router.put('/:id', updateSkill); // ✅ Update Skill by ID
+// 🔐 Protect this route with JWT token
+router.post("/add", authenticate, createSkill);
 
 export default router;

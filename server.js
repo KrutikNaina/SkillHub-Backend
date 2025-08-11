@@ -13,6 +13,7 @@ import starRoutes from './routes/star.routes.js';
 import followerRoutes from './routes/follower.routes.js';
 import progressLogRoutes from './routes/progressLog.routes.js'
 import milestoneRoutes from './routes/milestone.routes.js';
+import userRoutes from './routes/user.routes.js';
 
 
 dotenv.config();
@@ -51,6 +52,10 @@ app.use('/api/profiles', profileRoutes);
 app.get('/', (req, res) => {
   res.send('🌐 Backend is running');
 });
+
+// user api
+app.use('/api/users', userRoutes);
+
 
 // skills api
 app.use('/api/skills', skillRoutes)
