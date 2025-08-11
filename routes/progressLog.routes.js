@@ -1,19 +1,10 @@
 import express from 'express'
-import {
-  createProgressLog,
-  getLogsBySkill,
-  getLogsByUser
-} from '../controllers/progressLog.controller.js'
+import { authenticate } from '../middleware/authMiddleware.js'
+import { getUserProgressLogs, createProgressLog } from '../controllers/progressLog.controller.js'
 
 const router = express.Router()
 
-// POST: Create new progress log
-router.post('/', createProgressLog)
-
-// GET: Get logs for a specific skill
-router.get('/skill/:skillId', getLogsBySkill)
-
-// GET: Get logs by user (optional)
-router.get('/user/:userId', getLogsByUser)
+router.get('/user', authenticate, getUserProgressLogs)
+router.post('/create', authenticate, createProgressLog)
 
 export default router

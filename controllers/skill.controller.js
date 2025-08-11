@@ -46,13 +46,15 @@ export const getSkills = async (req, res) => {
 // 📌 Get skills by logged-in user
 export const getMySkills = async (req, res) => {
   try {
-    const userId = req.user?._id || req.params.userId;
+    const userId = req.user?._id;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
     const skills = await Skill.find({ userId });
     res.status(200).json(skills);
   } catch (error) {
     res.status(500).json({
       message: "Failed to fetch user skills",
-      error: error.message
+      error: error.message,
     });
   }
 };

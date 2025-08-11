@@ -1,50 +1,43 @@
 import ProgressLog from '../models/ProgressLog.model.js'
 
-// Create a new progress log
+// Get all progress logs for the logged-in user, sorted by date desc
+export const getUserProgressLogs = async (req, res) => {
+  try {
+    const userId = req.user._id
+
+    const logs = await ProgressLog.find({ userId }).sort({ date: -1 })
+    res.status(200).json(logs)
+  } catch (error) {
+    console.error('Error fetching user progress logs:', error)
+    res.status(500).json({ message: 'Failed to fetch user progress logs', error: error.message })
+  }
+}
+
+// Create new progress log
 export const createProgressLog = async (req, res) => {
   try {
-    const { userId, skillId, content, mediaUrl } = req.body
+    const userId = req.user._id
+    const { skillId, skillTitle, date, notes, completionPercent, image, video } = req.body
+
+    if (!skillTitle || !date || !notes || completionPercent === undefined)
+      return res.status(400).json({ message: 'Missing required fields' })
 
     const newLog = new ProgressLog({
       userId,
       skillId,
-      content,
-      mediaUrl
+      skillTitle,
+      date,
+      notes,
+      completionPercent,
+      image,
+      video,
     })
 
     await newLog.save()
+
     res.status(201).json(newLog)
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to create log', error: err.message })
-  }
-}
-
-// Get all logs for a specific skill
-export const getLogsBySkill = async (req, res) => {
-  try {
-    const { skillId } = req.params
-
-    const logs = await ProgressLog.find({ skillId })
-      .populate('userId', 'displayName avatar')
-      .sort({ createdAt: -1 })
-
-    res.status(200).json(logs)
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch logs', error: err.message })
-  }
-}
-
-// Optional: Get all logs by a user
-export const getLogsByUser = async (req, res) => {
-  try {
-    const { userId } = req.params
-
-    const logs = await ProgressLog.find({ userId })
-      .populate('skillId', 'title')
-      .sort({ createdAt: -1 })
-
-    res.status(200).json(logs)
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch user logs', error: err.message })
+  } catch (error) {
+    console.error('Error creating progress log:', error)
+    res.status(500).json({ message: 'Failed to create progress log', error: error.message })
   }
 }
