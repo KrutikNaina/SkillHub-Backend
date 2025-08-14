@@ -58,3 +58,47 @@ export const getMySkills = async (req, res) => {
     });
   }
 };
+// 📌 Delete a skill by ID (only if it belongs to the logged-in user)
+export const deleteSkill = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    const { id } = req.params;
+
+    const skill = await Skill.findOneAndDelete({ _id: id, userId });
+    if (!skill) {
+      return res.status(404).json({ message: "Skill not found or not authorized" });
+    }
+
+    res.json({ message: "Skill deleted successfully", id });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to delete skill",
+      error: error.message,
+    });
+  }
+};
+// 📌 Update a skill (only if it belongs to the logged-in user)
+export const updateSkill = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    const { id } = req.params;
+    const updates = req.body;
+
+    const skill = await Skill.findOneAndUpdate(
+      { _id: id, userId },
+      updates,
+      { new: true } // return updated document
+    );
+
+    if (!skill) {
+      return res.status(404).json({ message: "Skill not found or not authorized" });
+    }
+
+    res.json({ message: "Skill updated successfully", skill });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to update skill",
+      error: error.message,
+    });
+  }
+};
