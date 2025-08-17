@@ -102,3 +102,16 @@ export const updateSkill = async (req, res) => {
     });
   }
 };
+export const getSkillById = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    const { id } = req.params;
+
+    const skill = await Skill.findOne({ _id: id, userId });
+    if (!skill) return res.status(404).json({ message: "Skill not found" });
+
+    res.json(skill);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch skill", error: error.message });
+  }
+};
