@@ -1,3 +1,4 @@
+// milestone.controller.js
 import Milestone from '../models/Milestone.model.js';
 
 // Create milestone
