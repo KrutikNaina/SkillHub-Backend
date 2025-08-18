@@ -1,17 +1,15 @@
-// milestone.routes.js
-import express from 'express';
-import {
-  createMilestone,
-  getUserMilestones,
-  getSkillMilestones,
-  deleteMilestone
-} from '../controllers/milestone.controller.js';
+// routes/milestone.routes.js
 
-const router = express.Router();
+import express from 'express'
+import { authenticate } from '../middleware/authMiddleware.js'
+import { getUserMilestones, createMilestone } from '../controllers/milestone.controller.js'
 
-router.post('/', createMilestone);
-router.get('/user/:userId', getUserMilestones);
-router.get('/skill/:skillId', getSkillMilestones);
-router.delete('/:milestoneId', deleteMilestone);
+const router = express.Router()
 
-export default router;
+// ✅ Fetch all milestones of a user
+router.get('/user', authenticate, getUserMilestones)
+
+// ✅ Create a new milestone (badge/streak)
+router.post('/create', authenticate, createMilestone)
+
+export default router

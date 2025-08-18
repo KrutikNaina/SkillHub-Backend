@@ -12,7 +12,7 @@ import skillRoutes from './routes/skill.routes.js';
 import starRoutes from './routes/star.routes.js';
 import followerRoutes from './routes/follower.routes.js';
 import progressLogRoutes from './routes/progressLog.routes.js';
-import milestoneRoutes from './routes/milestone.routes.js';
+import milestoneRoutes from "./routes/milestone.routes.js";
 import userRoutes from './routes/user.routes.js';
 
 dotenv.config();
@@ -52,7 +52,7 @@ app.use('/api/skills', skillRoutes);
 app.use('/api/stars', starRoutes);
 app.use('/api/followers', followerRoutes);
 app.use('/api/progresslogs', progressLogRoutes);
-app.use('/api/milestones', milestoneRoutes);
+app.use("/api/milestones", milestoneRoutes);
 
 // ✅ Default route
 app.get('/', (req, res) => {

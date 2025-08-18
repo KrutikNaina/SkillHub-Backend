@@ -1,42 +1,32 @@
-// milestone.controller.js
-import Milestone from '../models/Milestone.model.js';
+// controllers/milestone.controller.js
 
-// Create milestone
-export const createMilestone = async (req, res) => {
-  try {
-    const milestone = await Milestone.create(req.body);
-    res.status(201).json(milestone);
-  } catch (err) {
-    res.status(500).json({ message: 'Error creating milestone', error: err.message });
-  }
-};
+import Milestone from '../models/Milestone.model.js'
 
-// Get all milestones for a user
+// 📌 Get milestones of logged-in user
 export const getUserMilestones = async (req, res) => {
   try {
-    const milestones = await Milestone.find({ userId: req.params.userId });
-    res.json(milestones);
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching user milestones', error: err.message });
+    const milestones = await Milestone.find({ userId: req.user._id }).sort({ createdAt: -1 })
+    res.json(milestones)
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching milestones', error })
   }
-};
+}
 
-// Get all milestones for a skill
-export const getSkillMilestones = async (req, res) => {
+// 📌 Create a new milestone
+export const createMilestone = async (req, res) => {
   try {
-    const milestones = await Milestone.find({ skillId: req.params.skillId });
-    res.json(milestones);
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching skill milestones', error: err.message });
-  }
-};
+    const { skillId, type, badge } = req.body
 
-// Delete milestone
-export const deleteMilestone = async (req, res) => {
-  try {
-    await Milestone.findByIdAndDelete(req.params.milestoneId);
-    res.json({ message: 'Milestone deleted' });
-  } catch (err) {
-    res.status(500).json({ message: 'Error deleting milestone', error: err.message });
+    const milestone = new Milestone({
+      userId: req.user._id,
+      skillId,
+      type,
+      badge
+    })
+
+    await milestone.save()
+    res.status(201).json(milestone)
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating milestone', error })
   }
-};
+}
