@@ -1,32 +1,43 @@
 // controllers/milestone.controller.js
-
 import Milestone from '../models/Milestone.model.js'
 
-// 📌 Get milestones of logged-in user
+// Fetch all milestones of a user
 export const getUserMilestones = async (req, res) => {
   try {
-    const milestones = await Milestone.find({ userId: req.user._id }).sort({ createdAt: -1 })
-    res.json(milestones)
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching milestones', error })
+    const userId = req.user._id;
+    const milestones = await Milestone.find({ userId }).sort({ achievedOn: -1 });
+    const count = milestones.length;
+    res.status(200).json({ count, milestones });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error fetching milestones' });
   }
-}
+};
 
-// 📌 Create a new milestone
+// Create a new milestone
 export const createMilestone = async (req, res) => {
   try {
-    const { skillId, type, badge } = req.body
-
-    const milestone = new Milestone({
+    const { type, badge, achievedOn } = req.body;
+    const milestone = await Milestone.create({
       userId: req.user._id,
-      skillId,
       type,
-      badge
-    })
-
-    await milestone.save()
-    res.status(201).json(milestone)
-  } catch (error) {
-    res.status(500).json({ message: 'Error creating milestone', error })
+      badge,
+      achievedOn: achievedOn || new Date(),
+    });
+    res.status(201).json(milestone);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error creating milestone' });
   }
-}
+};
+
+// Fetch total milestones count for the user
+export const getMilestonesCount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const count = await Milestone.countDocuments({ userId });
+    res.status(200).json({ count });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error fetching milestone count' });
+  }
+};
