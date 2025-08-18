@@ -1,4 +1,3 @@
-// routes/skillroutes.js
 import express from "express";
 import { authenticate } from "../middleware/authMiddleware.js";
 import {
@@ -7,13 +6,15 @@ import {
   deleteSkill,
   updateSkill,
   getSkillById,
+  getSkillsCount,
 } from "../controllers/skill.controller.js";
 
 const router = express.Router();
 
 router.post("/add", authenticate, createSkill);
 router.get("/", authenticate, getMySkills);
-router.get("/:id", authenticate, getSkillById); // ✅ DETAILS ROUTE
+router.get("/count", authenticate, getSkillsCount);
+router.get("/:id", authenticate, getSkillById);
 router.delete("/:id", authenticate, deleteSkill);
 router.put("/:id", authenticate, updateSkill);
 

@@ -1,4 +1,3 @@
-// backend/controllers/skill.controller.js
 import Skill from "../models/skill.model.js";
 
 // 📌 Create a new skill
@@ -6,8 +5,14 @@ export const createSkill = async (req, res) => {
   try {
     const { title, description, coverImage, startDate, targetGoal } = req.body;
 
-    // If you use authentication middleware, userId can come from req.user
-    const userId = req.user?._id || req.body.userId; 
+    if (!title || !description) {
+      return res.status(400).json({ message: "Title and description are required" });
+    }
+
+    const userId = req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: No user ID found" });
+    }
 
     const skill = await Skill.create({
       userId,
@@ -23,6 +28,7 @@ export const createSkill = async (req, res) => {
       skill
     });
   } catch (error) {
+    console.error("Create skill error:", error);
     res.status(500).json({
       message: "Failed to create skill",
       error: error.message
@@ -36,6 +42,7 @@ export const getSkills = async (req, res) => {
     const skills = await Skill.find();
     res.status(200).json(skills);
   } catch (error) {
+    console.error("Get skills error:", error);
     res.status(500).json({
       message: "Failed to fetch skills",
       error: error.message
@@ -52,13 +59,32 @@ export const getMySkills = async (req, res) => {
     const skills = await Skill.find({ userId });
     res.status(200).json(skills);
   } catch (error) {
+    console.error("Get user skills error:", error);
     res.status(500).json({
       message: "Failed to fetch user skills",
       error: error.message,
     });
   }
 };
-// 📌 Delete a skill by ID (only if it belongs to the logged-in user)
+
+// 📌 Get skills count for the logged-in user
+export const getSkillsCount = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const count = await Skill.countDocuments({ userId });
+    res.status(200).json({ count });
+  } catch (error) {
+    console.error("Get skills count error:", error);
+    res.status(500).json({
+      message: "Failed to fetch skills count",
+      error: error.message,
+    });
+  }
+};
+
+// 📌 Delete a skill by ID
 export const deleteSkill = async (req, res) => {
   try {
     const userId = req.user?._id;
@@ -71,13 +97,15 @@ export const deleteSkill = async (req, res) => {
 
     res.json({ message: "Skill deleted successfully", id });
   } catch (error) {
+    console.error("Delete skill error:", error);
     res.status(500).json({
       message: "Failed to delete skill",
       error: error.message,
     });
   }
 };
-// 📌 Update a skill (only if it belongs to the logged-in user)
+
+// 📌 Update a skill
 export const updateSkill = async (req, res) => {
   try {
     const userId = req.user?._id;
@@ -87,7 +115,7 @@ export const updateSkill = async (req, res) => {
     const skill = await Skill.findOneAndUpdate(
       { _id: id, userId },
       updates,
-      { new: true } // return updated document
+      { new: true }
     );
 
     if (!skill) {
@@ -96,12 +124,15 @@ export const updateSkill = async (req, res) => {
 
     res.json({ message: "Skill updated successfully", skill });
   } catch (error) {
+    console.error("Update skill error:", error);
     res.status(500).json({
       message: "Failed to update skill",
       error: error.message,
     });
   }
 };
+
+// 📌 Get a skill by ID
 export const getSkillById = async (req, res) => {
   try {
     const userId = req.user?._id;
@@ -112,6 +143,7 @@ export const getSkillById = async (req, res) => {
 
     res.json(skill);
   } catch (error) {
+    console.error("Get skill by ID error:", error);
     res.status(500).json({ message: "Failed to fetch skill", error: error.message });
   }
 };
