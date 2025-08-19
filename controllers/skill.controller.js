@@ -147,3 +147,22 @@ export const getSkillById = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch skill", error: error.message });
   }
 };
+// 📌 Get last 3 recent skills of logged-in user
+export const getRecentSkills = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const recentSkills = await Skill.find({ userId })
+      .sort({ createdAt: -1 }) // newest first
+      .limit(3);
+
+    res.status(200).json(recentSkills);
+  } catch (error) {
+    console.error("Get recent skills error:", error);
+    res.status(500).json({
+      message: "Failed to fetch recent skills",
+      error: error.message,
+    });
+  }
+};
