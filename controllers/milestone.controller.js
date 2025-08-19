@@ -1,41 +1,43 @@
-import Milestone from '../models/Milestone.model.js';
+// controllers/milestone.controller.js
+import Milestone from '../models/Milestone.model.js'
 
-// Create milestone
-export const createMilestone = async (req, res) => {
-  try {
-    const milestone = await Milestone.create(req.body);
-    res.status(201).json(milestone);
-  } catch (err) {
-    res.status(500).json({ message: 'Error creating milestone', error: err.message });
-  }
-};
-
-// Get all milestones for a user
+// Fetch all milestones of a user
 export const getUserMilestones = async (req, res) => {
   try {
-    const milestones = await Milestone.find({ userId: req.params.userId });
-    res.json(milestones);
+    const userId = req.user._id;
+    const milestones = await Milestone.find({ userId }).sort({ achievedOn: -1 });
+    const count = milestones.length;
+    res.status(200).json({ count, milestones });
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching user milestones', error: err.message });
+    res.status(500).json({ message: 'Server error fetching milestones' });
   }
 };
 
-// Get all milestones for a skill
-export const getSkillMilestones = async (req, res) => {
+// Create a new milestone
+export const createMilestone = async (req, res) => {
   try {
-    const milestones = await Milestone.find({ skillId: req.params.skillId });
-    res.json(milestones);
+    const { type, badge, achievedOn } = req.body;
+    const milestone = await Milestone.create({
+      userId: req.user._id,
+      type,
+      badge,
+      achievedOn: achievedOn || new Date(),
+    });
+    res.status(201).json(milestone);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching skill milestones', error: err.message });
+    console.error(err);
+    res.status(500).json({ message: 'Server error creating milestone' });
   }
 };
 
-// Delete milestone
-export const deleteMilestone = async (req, res) => {
+// Fetch total milestones count for the user
+export const getMilestonesCount = async (req, res) => {
   try {
-    await Milestone.findByIdAndDelete(req.params.milestoneId);
-    res.json({ message: 'Milestone deleted' });
+    const userId = req.user._id;
+    const count = await Milestone.countDocuments({ userId });
+    res.status(200).json({ count });
   } catch (err) {
-    res.status(500).json({ message: 'Error deleting milestone', error: err.message });
+    console.error(err);
+    res.status(500).json({ message: 'Server error fetching milestone count' });
   }
 };

@@ -4,49 +4,10 @@ import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
-// Step 1: Google Auth Entry Point
+// ---------------- GOOGLE ----------------
 router.get('/google',
-  passport.authenticate('google', {
-    scope: ['profile', 'email']
-  })
+  passport.authenticate('google', { scope: ['profile', 'email'] })
 );
-
-// ✅ Step 2: Google Auth Callback (updated for popup flow)
-// router.get(
-//   '/google/callback',
-//   passport.authenticate('google', { failureRedirect: '/auth/failure' }),
-//   (req, res) => {
-//     // Create JWT token
-//     const token = jwt.sign(
-//       {
-//         id: req.user._id,
-//         name: req.user.name,
-//         email: req.user.email,
-//       },
-//       process.env.JWT_SECRET,
-//       { expiresIn: '1h' }
-//     );
-
-//     // Send token to opener window and close popup
-//     res.send(`
-//       <html>
-//         <body>
-//           <script>
-//             if (window.opener) {
-//               window.opener.postMessage({
-//                 type: 'oauth-success',
-//                 token: '${token}'
-//               }, '*');
-//               window.close();
-//             } else {
-//               document.body.innerText = "Login success, but can't communicate with main window.";
-//             }
-//           </script>
-//         </body>
-//       </html>
-//     `);
-//   }
-// );
 
 router.get(
   '/google/callback',
@@ -55,7 +16,7 @@ router.get(
     const token = jwt.sign(
       {
         id: req.user._id,
-        name: req.user.name,
+        name: req.user.displayName,
         email: req.user.email,
       },
       process.env.JWT_SECRET,
@@ -63,28 +24,54 @@ router.get(
     );
 
     res.send(`
-      <html>
-        <body>
-          <script>
-            window.opener.postMessage({
-              type: 'oauth-success',
-              token: '${token}'
-            }, 'http://localhost:5173');
-            window.close();
-          </script>
-        </body>
-      </html>
+      <html><body>
+        <script>
+          window.opener.postMessage({
+            type: 'oauth-success',
+            token: '${token}'
+          }, 'http://localhost:5173');
+          window.close();
+        </script>
+      </body></html>
     `);
-
   }
 );
 
+// ---------------- GITHUB ----------------
+router.get('/github',
+  passport.authenticate('github', { scope: ['user:email'] })
+);
 
-// Optional failure route
+router.get(
+  '/github/callback',
+  passport.authenticate('github', { failureRedirect: '/auth/failure' }),
+  (req, res) => {
+    const token = jwt.sign(
+      {
+        id: req.user._id,
+        name: req.user.displayName,
+        email: req.user.email,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.send(`
+      <html><body>
+        <script>
+          window.opener.postMessage({
+            type: 'oauth-success',
+            token: '${token}'
+          }, 'http://localhost:5173');
+          window.close();
+        </script>
+      </body></html>
+    `);
+  }
+);
+
 router.get('/failure', (req, res) => {
-  res.send('Google Authentication Failed');
+  res.send('Authentication Failed');
 });
-
-
 
 export default router;

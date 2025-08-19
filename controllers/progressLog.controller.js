@@ -41,3 +41,32 @@ export const createProgressLog = async (req, res) => {
     res.status(500).json({ message: 'Failed to create progress log', error: error.message })
   }
 }
+
+// Get count of progress logs for the logged-in user
+export const getProgressLogsCount = async (req, res) => {
+  try {
+    const userId = req.user._id
+    const count = await ProgressLog.countDocuments({ userId })
+    res.status(200).json({ count })
+  } catch (error) {
+    console.error('Error fetching progress logs count:', error)
+    res.status(500).json({ message: 'Failed to fetch progress logs count', error: error.message })
+  }
+}
+// Delete a progress log
+export const deleteProgressLog = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { id } = req.params;
+
+    const log = await ProgressLog.findOneAndDelete({ _id: id, userId });
+    if (!log) {
+      return res.status(404).json({ message: "Log not found or unauthorized" });
+    }
+
+    res.status(200).json({ message: "Log deleted successfully", id });
+  } catch (error) {
+    console.error("Error deleting progress log:", error);
+    res.status(500).json({ message: "Failed to delete progress log", error: error.message });
+  }
+};
