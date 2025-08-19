@@ -4,7 +4,9 @@ import {
   getUserProgressLogs, 
   createProgressLog, 
   getProgressLogsCount, 
-  deleteProgressLog   // ✅ import new
+  deleteProgressLog,
+  getProgressLogById,   // ✅ single log
+  updateProgressLog     // ✅ update
 } from '../controllers/progressLog.controller.js'
 
 const router = express.Router()
@@ -12,6 +14,8 @@ const router = express.Router()
 router.get('/user', authenticate, getUserProgressLogs)
 router.get('/count', authenticate, getProgressLogsCount)
 router.post('/create', authenticate, createProgressLog)
-router.delete('/:id', authenticate, deleteProgressLog) // ✅ delete route
+router.get('/:id', authenticate, getProgressLogById) // ✅ single log
+router.put('/:id', authenticate, updateProgressLog)  // ✅ update
+router.delete('/:id', authenticate, deleteProgressLog)
 
 export default router
