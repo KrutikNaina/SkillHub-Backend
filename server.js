@@ -14,6 +14,7 @@ import followerRoutes from './routes/follower.routes.js';
 import progressLogRoutes from './routes/progressLog.routes.js';
 import milestoneRoutes from "./routes/milestone.routes.js";
 import userRoutes from './routes/user.routes.js';
+import feed from './routes/feed.routes.js';
 
 dotenv.config();
 const app = express();
@@ -53,6 +54,7 @@ app.use('/api/stars', starRoutes);
 app.use('/api/followers', followerRoutes);
 app.use('/api/progresslogs', progressLogRoutes);
 app.use("/api/milestones", milestoneRoutes);
+app.use("/api/feed", feed);
 
 // ✅ Default route
 app.get('/', (req, res) => {
