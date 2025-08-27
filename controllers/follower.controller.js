@@ -65,3 +65,17 @@ export const getFollowing = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// ✅ NEW: Get counts of followers & following
+export const getFollowCounts = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const followersCount = await Follower.countDocuments({ userId });
+    const followingCount = await Follower.countDocuments({ followerId: userId });
+
+    res.status(200).json({ followersCount, followingCount });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

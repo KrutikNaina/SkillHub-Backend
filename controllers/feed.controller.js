@@ -16,11 +16,23 @@ export const getFeed = async (req, res) => {
 
     const followingIds = following.map((f) => f.userId.toString());
 
-    // mark isFollowing
-    const feed = users.map((user) => ({
-      ...user.toObject(),
-      isFollowing: followingIds.includes(user._id.toString()),
-    }));
+    // prepare feed with follower/following count + isFollowing
+    const feed = await Promise.all(
+      users.map(async (user) => {
+        const userId = user._id.toString();
+
+        // count followers and following for each user
+        const followerCount = await Follower.countDocuments({ userId });
+        const followingCount = await Follower.countDocuments({ followerId: userId });
+
+        return {
+          ...user.toObject(),
+          isFollowing: followingIds.includes(userId),
+          followerCount,
+          followingCount,
+        };
+      })
+    );
 
     res.json(feed);
   } catch (error) {
