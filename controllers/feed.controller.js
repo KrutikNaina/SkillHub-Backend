@@ -4,37 +4,34 @@ import Follower from "../models/Follower.model.js";
 
 export const getFeed = async (req, res) => {
   try {
-    const currentUserId = req.user._id;
+    const loggedInUserId = req.user._id;
 
-    // fetch all users except logged-in user
-    const users = await User.find({ _id: { $ne: currentUserId } })
+    // Get all other users
+    const users = await User.find({ _id: { $ne: loggedInUserId } })
       .select("displayName avatar bio");
 
-    // fetch all users current user is following
-    const following = await Follower.find({ followerId: currentUserId })
-      .select("userId");
+    // Followers of loggedInUser (to know who he follows)
+    const myFollowings = await Follower.find({ followerId: loggedInUserId }).select("userId");
 
-    const followingIds = following.map((f) => f.userId.toString());
+    // Map for quick lookup
+    const followingSet = new Set(myFollowings.map(f => f.userId.toString()));
 
-    // prepare feed with follower/following count + isFollowing
-    const feed = await Promise.all(
+    // For each user, count followers & following
+    const enrichedUsers = await Promise.all(
       users.map(async (user) => {
-        const userId = user._id.toString();
-
-        // count followers and following for each user
-        const followerCount = await Follower.countDocuments({ userId });
-        const followingCount = await Follower.countDocuments({ followerId: userId });
+        const followersCount = await Follower.countDocuments({ userId: user._id });
+        const followingCount = await Follower.countDocuments({ followerId: user._id });
 
         return {
           ...user.toObject(),
-          isFollowing: followingIds.includes(userId),
-          followerCount,
+          followersCount,
           followingCount,
+          isFollowing: followingSet.has(user._id.toString()),
         };
       })
     );
 
-    res.json(feed);
+    res.json(enrichedUsers);
   } catch (error) {
     console.error("Error fetching feed:", error);
     res.status(500).json({ message: "Server error" });
