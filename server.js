@@ -18,19 +18,21 @@ import feed from './routes/feed.routes.js';
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// ✅ CORS MUST be early
+// ✅ CORS must allow your frontend URL (both localhost & deployed frontend)
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
+    'https://skillhub-frontend.vercel.app' // change to your real frontend URL
+  ],
   credentials: true,
 }));
 
-// ✅ Body parser with increased limit to handle Base64 images
-app.use(express.json({ limit: '10mb' })); // allow up to 10 MB JSON payload
-app.use(express.urlencoded({ extended: true, limit: '10mb' })); // handle form submissions too
+// ✅ Body parser with increased limit for images
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Session and Passport
+// ✅ Sessions
 app.use(session({
   secret: process.env.JWT_SECRET || 'keyboardcat',
   resave: false,
@@ -40,7 +42,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-
+// ✅ Connect MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch((err) => console.log('❌ DB Error', err));
@@ -61,7 +63,7 @@ app.get('/', (req, res) => {
   res.send('🌐 Backend is running');
 });
 
-// ✅ Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+// ⚠️ DO NOT LISTEN on PORT in Vercel
+// app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+
+export default app; // ✅ Needed for Vercel
