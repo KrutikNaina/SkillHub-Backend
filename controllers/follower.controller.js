@@ -4,9 +4,9 @@ import Follower from '../models/Follower.model.js';
 export const followUser = async (req, res) => {
   try {
     const { userId } = req.body; // person being followed
-    const followerId = req.user.id; // logged-in user
+    const followerId = req.user._id; // logged-in user from JWT
 
-    if (userId === followerId) {
+    if (userId.toString() === followerId.toString()) {
       return res.status(400).json({ message: "You can't follow yourself" });
     }
 
@@ -26,8 +26,8 @@ export const followUser = async (req, res) => {
 // Unfollow a user
 export const unfollowUser = async (req, res) => {
   try {
-    const { userId } = req.body; // person being unfollowed
-    const followerId = req.user.id; // logged-in user
+    const { userId } = req.body;
+    const followerId = req.user._id;
 
     const unfollow = await Follower.findOneAndDelete({ userId, followerId });
     if (!unfollow) {
@@ -46,7 +46,7 @@ export const getFollowers = async (req, res) => {
     const { userId } = req.params;
 
     const followers = await Follower.find({ userId })
-      .populate('followerId', 'name email');
+      .populate('followerId', 'displayName email avatar');
     res.status(200).json(followers);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -59,7 +59,7 @@ export const getFollowing = async (req, res) => {
     const { followerId } = req.params;
 
     const following = await Follower.find({ followerId })
-      .populate('userId', 'name email');
+      .populate('userId', 'displayName email avatar');
     res.status(200).json(following);
   } catch (error) {
     res.status(500).json({ error: error.message });
