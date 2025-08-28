@@ -23,7 +23,8 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://skillhub-frontend.vercel.app' // change to your real frontend URL
+    'https://skillhub-frontend.vercel.app', // change to your real frontend URL
+    "https://skillhub.krutiknaina.com/"
   ],
   credentials: true,
 }));
