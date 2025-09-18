@@ -1,6 +1,6 @@
-import express from "express";
-import passport from "passport";
-import jwt from "jsonwebtoken";
+import express from 'express';
+import passport from 'passport';
+import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
@@ -13,7 +13,7 @@ const generateToken = (user) => {
       email: user.email,
     },
     process.env.JWT_SECRET,
-    { expiresIn: "1h" }
+    { expiresIn: '1h' }
   );
 };
 
@@ -21,21 +21,19 @@ const generateToken = (user) => {
 const sendPopupResponse = (res, token) => {
   const frontendURL =
     process.env.NODE_ENV === "production"
-      ? process.env.FRONTEND_URL || "https://skillhub.krutiknaina.com"
+      ? "https://skillhub.krutiknaina.com"
       : "http://localhost:5173";
 
   res.send(`
-    <html>
-      <body>
-        <script>
-          window.opener.postMessage({
-            type: 'oauth-success',
-            token: '${token}'
-          }, '${frontendURL}');
-          window.close();
-        </script>
-      </body>
-    </html>
+    <html><body>
+      <script>
+        window.opener.postMessage({
+          type: 'oauth-success',
+          token: '${token}'
+        }, '${frontendURL}');
+        window.close();
+      </script>
+    </body></html>
   `);
 };
 
