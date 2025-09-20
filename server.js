@@ -7,29 +7,36 @@ import cors from 'cors';
 
 import authRoutes from './routes/authRoutes.js';
 import profileRoutes from './routes/profile.routes.js';
-import './config/passportConfig.js';
+import userRoutes from './routes/user.routes.js';
 import skillRoutes from './routes/skill.routes.js';
 import starRoutes from './routes/star.routes.js';
 import followerRoutes from './routes/follower.routes.js';
 import progressLogRoutes from './routes/progressLog.routes.js';
-import milestoneRoutes from "./routes/milestone.routes.js";
-import userRoutes from './routes/user.routes.js';
-import feed from './routes/feed.routes.js';
+import milestoneRoutes from './routes/milestone.routes.js';
+import feedRoutes from './routes/feed.routes.js';
+
+import './config/passportConfig.js';
 
 dotenv.config();
 const app = express();
 
-// ✅ CORS must allow your frontend URL (both localhost & deployed frontend)
+// ✅ CORS: dynamic based on environment
+const allowedOrigins = [
+  'http://localhost:5173', // local frontend
+  'https://skillhub.krutiknaina.com', // production frontend
+];
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://skillhub-frontend.vercel.app', // change to your real frontend URL
-    "https://skillhub.krutiknaina.com/"
-  ],
+  origin: function(origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error('CORS policy: origin not allowed'));
+  },
   credentials: true,
 }));
 
-// ✅ Body parser with increased limit for images
+// ✅ Body parser
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -43,10 +50,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ Connect MongoDB
+// ✅ MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
-  .catch((err) => console.log('❌ DB Error', err));
+  .catch((err) => console.error('❌ DB Error', err));
 
 // ✅ Routes
 app.use('/auth', authRoutes);
@@ -56,15 +63,12 @@ app.use('/api/skills', skillRoutes);
 app.use('/api/stars', starRoutes);
 app.use('/api/followers', followerRoutes);
 app.use('/api/progresslogs', progressLogRoutes);
-app.use("/api/milestones", milestoneRoutes);
-app.use("/api/feed", feed);
+app.use('/api/milestones', milestoneRoutes);
+app.use('/api/feed', feedRoutes);
 
 // ✅ Default route
-app.get('/', (req, res) => {
-  res.send('🌐 Backend is running');
-});
+app.get('/', (req, res) => res.send('🌐 Backend is running'));
 
-// ⚠️ DO NOT LISTEN on PORT in Vercel
-// app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
-
-export default app; // ✅ Needed for Vercel
+// ⚠️ For Vercel deployment, do NOT use app.listen()
+// export app for serverless deployment
+export default app;
