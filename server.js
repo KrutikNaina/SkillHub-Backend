@@ -1,10 +1,14 @@
+// server.js
 import express from 'express';
 import mongoose from 'mongoose';
 import session from 'express-session';
 import passport from 'passport';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+// ✅ Import Routes
 import authRoutes from './routes/authRoutes.js';
 import profileRoutes from './routes/profile.routes.js';
 import userRoutes from './routes/user.routes.js';
@@ -15,6 +19,7 @@ import progressLogRoutes from './routes/progressLog.routes.js';
 import milestoneRoutes from './routes/milestone.routes.js';
 import feedRoutes from './routes/feed.routes.js';
 
+// ✅ Passport config
 import './config/passportConfig.js';
 
 dotenv.config();
@@ -23,7 +28,7 @@ const app = express();
 // ✅ CORS
 app.use(cors({
   origin: [
-    'http://localhost:5173',
+    'http://localhost:5173', // Dev frontend
     'https://skillhub-frontend.vercel.app',
     'https://skillhub.krutiknaina.com'
   ],
@@ -49,7 +54,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch((err) => console.error('❌ DB Error', err));
 
-// ✅ Routes
+// ✅ API Routes
 app.use('/auth', authRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/api/users', userRoutes);
@@ -60,10 +65,25 @@ app.use('/api/progresslogs', progressLogRoutes);
 app.use('/api/milestones', milestoneRoutes);
 app.use('/api/feed', feedRoutes);
 
-// ✅ Default route
-app.get('/', (req, res) => res.send('🌐 Backend is running'));
+// ✅ Serve React frontend in production
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// ⚠️ Do NOT listen on PORT in Vercel
-// app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../dist')));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+  });
+}
+
+// ✅ Default route for testing
+app.get('/ping', (req, res) => res.send('🏓 Pong! Backend is running'));
+
+// ⚡ Start server (for local dev)
+const PORT = process.env.PORT || 5000;
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+}
 
 export default app;
