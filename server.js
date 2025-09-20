@@ -8,7 +8,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// ✅ Import Routes
+// Routes
 import authRoutes from './routes/authRoutes.js';
 import profileRoutes from './routes/profile.routes.js';
 import userRoutes from './routes/user.routes.js';
@@ -19,13 +19,13 @@ import progressLogRoutes from './routes/progressLog.routes.js';
 import milestoneRoutes from './routes/milestone.routes.js';
 import feedRoutes from './routes/feed.routes.js';
 
-// ✅ Passport config
+// Passport config
 import './config/passportConfig.js';
 
 dotenv.config();
 const app = express();
 
-// ✅ CORS
+// CORS
 app.use(cors({
   origin: [
     'http://localhost:5173', // Dev frontend
@@ -35,11 +35,11 @@ app.use(cors({
   credentials: true,
 }));
 
-// ✅ Body parser
+// Body parser
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ✅ Sessions
+// Sessions
 app.use(session({
   secret: process.env.JWT_SECRET || 'keyboardcat',
   resave: false,
@@ -49,12 +49,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ MongoDB Connection
+// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
-  .catch((err) => console.error('❌ DB Error', err));
+  .catch(err => console.error('❌ DB Error', err));
 
-// ✅ API Routes
+// API Routes
 app.use('/auth', authRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/api/users', userRoutes);
@@ -65,22 +65,26 @@ app.use('/api/progresslogs', progressLogRoutes);
 app.use('/api/milestones', milestoneRoutes);
 app.use('/api/feed', feedRoutes);
 
-// ✅ Serve React frontend in production
+// ES module __dirname fix
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Serve frontend (Vite build) in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../dist')));
+  // ✅ Correct frontend path
+  const frontendPath = path.join(__dirname, '../skillhub-frontend/dist');
+  
+  app.use(express.static(frontendPath));
 
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+    res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }
 
-// ✅ Default route for testing
+// Test route
 app.get('/ping', (req, res) => res.send('🏓 Pong! Backend is running'));
 
-// ⚡ Start server (for local dev)
+// Start server (dev only)
 const PORT = process.env.PORT || 5000;
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
