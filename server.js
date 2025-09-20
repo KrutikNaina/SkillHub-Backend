@@ -20,19 +20,13 @@ import './config/passportConfig.js';
 dotenv.config();
 const app = express();
 
-// ✅ CORS: dynamic based on environment
-const allowedOrigins = [
-  'http://localhost:5173', // local frontend
-  'https://skillhub.krutiknaina.com', // production frontend
-];
-
+// ✅ CORS
 app.use(cors({
-  origin: function(origin, callback) {
-    // allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error('CORS policy: origin not allowed'));
-  },
+  origin: [
+    'http://localhost:5173',
+    'https://skillhub-frontend.vercel.app',
+    'https://skillhub.krutiknaina.com'
+  ],
   credentials: true,
 }));
 
@@ -69,6 +63,7 @@ app.use('/api/feed', feedRoutes);
 // ✅ Default route
 app.get('/', (req, res) => res.send('🌐 Backend is running'));
 
-// ⚠️ For Vercel deployment, do NOT use app.listen()
-// export app for serverless deployment
+// ⚠️ Do NOT listen on PORT in Vercel
+// app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+
 export default app;

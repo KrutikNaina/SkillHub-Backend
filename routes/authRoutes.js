@@ -27,15 +27,11 @@ const sendPopupResponse = (res, token) => {
   res.send(`
     <html><body>
       <script>
-        if (window.opener) {
-          window.opener.postMessage({
-            type: 'oauth-success',
-            token: '${token}'
-          }, '${frontendURL}');
-          window.close();
-        } else {
-          window.location.href = '${frontendURL}';
-        }
+        window.opener.postMessage({
+          type: 'oauth-success',
+          token: '${token}'
+        }, '${frontendURL}');
+        window.close();
       </script>
     </body></html>
   `);
@@ -44,15 +40,12 @@ const sendPopupResponse = (res, token) => {
 // ---------------- GOOGLE ----------------
 router.get(
   "/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-    prompt: "select_account", // ensures account selection on every login
-  })
+  passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/auth/failure", session: false }),
+  passport.authenticate("google", { failureRedirect: "/auth/failure" }),
   (req, res) => {
     const token = generateToken(req.user);
     sendPopupResponse(res, token);
@@ -67,7 +60,7 @@ router.get(
 
 router.get(
   "/github/callback",
-  passport.authenticate("github", { failureRedirect: "/auth/failure", session: false }),
+  passport.authenticate("github", { failureRedirect: "/auth/failure" }),
   (req, res) => {
     const token = generateToken(req.user);
     sendPopupResponse(res, token);
@@ -76,7 +69,7 @@ router.get(
 
 // ---------------- FAILURE ----------------
 router.get("/failure", (req, res) => {
-  res.status(401).send("❌ Authentication Failed");
+  res.send("❌ Authentication Failed");
 });
 
 export default router;
