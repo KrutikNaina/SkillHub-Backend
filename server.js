@@ -19,17 +19,18 @@ import feed from './routes/feed.routes.js';
 dotenv.config();
 const app = express();
 
-// ✅ CORS must allow your frontend URL (both localhost & deployed frontend)
+// ✅ CORS
+const allowedOrigins = [
+  'http://localhost:5173',           // Local frontend
+  'https://skillhub.krutiknaina.com' // Deployed frontend
+];
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://skillhub-frontend.vercel.app', // change to your real frontend URL
-    "https://skillhub.krutiknaina.com/"
-  ],
+  origin: allowedOrigins,
   credentials: true,
 }));
 
-// ✅ Body parser with increased limit for images
+// ✅ Body parser
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -43,7 +44,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ Connect MongoDB
+// ✅ MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch((err) => console.log('❌ DB Error', err));
@@ -64,7 +65,4 @@ app.get('/', (req, res) => {
   res.send('🌐 Backend is running');
 });
 
-// ⚠️ DO NOT LISTEN on PORT in Vercel
-// app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
-
-export default app; // ✅ Needed for Vercel
+export default app;
